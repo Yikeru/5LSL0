@@ -22,7 +22,7 @@ ys = rows[:,1]
 # Initialize filter
 gamma = 1-(1e-3)
 ryx = np.array([[0],[0],[0]])
-Rxinv = np.identity(3)*1e-3
+Rxinv = np.identity(3)*1e-4
 RxInvList = [Rxinv]
 ryxList = [ryx]
 wo = []

@@ -14,13 +14,14 @@ file.close()
 
 
 # Initialize filter
-alpha = np.random.randn(1)  # ensures convergence
+alpha = 0.145 #np.random.random(1)  # ensures convergence
 N = len(rows)  # number of samples
 D = 3 #len(rows[0][0])  # input dimension
-w0 = np.random.randn(D,1)  # initialize weights from random distribution
+w0 = np.random.rand(D,1)  # initialize weights from random distribution
 ryx = np.array([[1],[5.3],[-3.9]])
 Rx = np.array([[5, -1, -2], [-1, 5, -1], [-2, -1, 5]])
 RxInv = np.linalg.inv(Rx)
+print("Alpha was chosen as: ", alpha)
 
 
 # Implement algorithm
