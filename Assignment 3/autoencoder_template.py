@@ -8,14 +8,16 @@ class Encoder(nn.Module):
     def __init__(self):
         super(Encoder, self).__init__()
         # create layers here
-            nn.Conv2d(1, 4, kernel_size=(3,3), stride=1, padding=1),
+            nn.Conv2d(1, 8, kernel_size=(3,3), stride=1, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(),
             
-            nn.Conv2d(1, 4, kernel_size=(3,3), stride=1, padding=1),
+            nn.Conv2d(8, 4, kernel_size=(3,3), stride=1, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d
+            nn.MaxPool2d(),
 
+            nn.Conv2d(4, 2, kernel_size=(3,3), stride=1, padding=1)
+            nn.MaxPool2d(),
     def forward(self, x):
         # use the created layers here
         h = x
