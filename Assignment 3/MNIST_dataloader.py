@@ -7,6 +7,8 @@ from torch.utils.data import Dataset,DataLoader
 # pyplot
 import matplotlib.pyplot as plt
 
+from config_file import data_loc
+
 # %% Noisy MNIST dataset
 class Noisy_MNIST(Dataset):
     # initialization of the dataset
@@ -69,7 +71,7 @@ def create_dataloaders(data_loc, batch_size):
 # %% test if the dataloaders work
 if __name__ == "__main__":
     # define parameters
-    data_loc = 'D://5LSL0-Datasets' #change the datalocation to something that works for you
+    from config_file import data_loc
     batch_size = 64
     
     # get dataloader
