@@ -1,19 +1,20 @@
 # %% imports
 # libraries
 import torch
+import torch.optim
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 # local imports
 import MNIST_dataloader
 import autoencoder_template
+from config_file import data_loc
 
 # %% set torches random seed
 torch.random.manual_seed(0)
 
 # %% preperations
 # define parameters
-data_loc = 'D://5LSL0-Datasets' #change the data location to something that works for you
 batch_size = 64
 no_epochs = 4
 learning_rate = 3e-4
@@ -25,7 +26,7 @@ train_loader, test_loader = MNIST_dataloader.create_dataloaders(data_loc, batch_
 AE = autoencoder_template.AE()
 
 # create the optimizer
-
+optimizer = optim.Adam(params, lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
 
 # %% training loop
 # go over all epochs

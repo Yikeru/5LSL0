@@ -59,10 +59,12 @@ class Encoder(nn.Module):
         print("\n Encoder 2nd branch output shape is ", z.size())
 
         # Concatenation
+        print("Concatenating....")
         h = torch.cat((y,z),dim=1)
         h = self.conv4(h)
         h = self.activ(h)
         h = self.lastpool(h)
+        print("At the end of the encoder, shape is ", h.size())
 
         return h
     
@@ -75,19 +77,22 @@ class Decoder(nn.Module):
             # nn.ReLU(),
             # nn.Upsample(),
         self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(1, 2, kernel_size=(3,3), padding=(1,1), dilation=(2,1), stride=(1,1)),
+            nn.ConvTranspose2d(1, 2, kernel_size=(3,3), padding=(1,1), dilation=(2,1), stride=(1,2)),
             nn.ReLU(),
             nn.UpsamplingNearest2d(scale_factor=2),
             nn.ConvTranspose2d(2, 2, kernel_size=(3,3), padding=(1,1), dilation=(2,2), stride=(2,2)),
             nn.ReLU(),
             nn.UpsamplingNearest2d(scale_factor=2),
-            nn.ConvTranspose2d(2, 2, kernel_size=(3,3), padding=(1,1), dilation=(1,1), stride=(2,2)),
-            nn.ReLU()
+            nn.ConvTranspose2d(2, 1, kernel_size=(3,3), padding=(1,1), dilation=(2,2), stride=(1,1)),
         )
 
     def forward(self, h):
         # use the created layers here
-        return self.decoder(h)
+        print("Moving on to the decoder ...")
+        print("Input of the decoder is", h.size())
+        h = self.decoder(h)
+        print("Output of the decoder is", h.size())
+        return h
     
 # %%  Autoencoder
 class AE(nn.Module):
@@ -97,8 +102,6 @@ class AE(nn.Module):
         self.decoder = Decoder()
         
     def forward(self, x):
-        print("Setting up the autoencoder")
-        print("We re feeding the autoencoder input of shape ", x.size())
         h = self.encoder(x)
         r = self.decoder(h)
         return r, h
@@ -112,6 +115,7 @@ if __name__ == "__main__":
     import autoencoder_template
     from matplotlib import pyplot as plt
     from MNIST_dataloader import create_dataloaders
+    from torchsummary import summary
     batch_size = 64
     
     # get dataloader
@@ -123,7 +127,16 @@ if __name__ == "__main__":
 
     # try out the model before any training
     model = AE()
-    output = model.forward(x_noisy_example)
+    summary(model, (1,32,32))
+    example = x_noisy_example[0,0,:,:]
+    output = model.forward(example)
     plt.figure(figsize=(12,3))
-    plt.imshow(x_clean_example[0,:,:,:],cmap='gray')
+    plt.subplot(1,2,1)
+    plt.imshow(example,cmap='gray')
+    plt.xticks([])
+    plt.yticks([])
+    plt.subplot(1,2,2)
+    plt.imshow(output[0][0].detach().numpy().reshape((28,28)),cmap='gray')
+    plt.xticks([])
+    plt.yticks([])
     plt.show()
