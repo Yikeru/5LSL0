@@ -1,0 +1,1 @@
+data_loc = r"C:\Users\20167271\Desktop\ML for signal processing\5LSL0-GIT\Assignment 3\data"
