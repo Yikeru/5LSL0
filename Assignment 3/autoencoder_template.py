@@ -60,14 +60,20 @@ class Decoder(nn.Module):
             # nn.ConvTranspose2d(),
             # nn.ReLU(),
             # nn.Upsample(),
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(1, 2, kernel_size=(3,3), padding=(1,1), dilation=(2,1), stride=(1,1)),
+            nn.ReLU(),
+            nn.UpsamplingNearest2d(scale_factor=2),
+            nn.ConvTranspose2d(2, 2, kernel_size=(3,3), padding=(1,1), dilation=(2,2), stride=(2,2)),
+            nn.ReLU(),
+            nn.UpsamplingNearest2d(scale_factor=2),
+            nn.ConvTranspose2d(2, 2, kernel_size=(3,3), padding=(1,1), dilation=(1,1), stride=(2,2)),
+            nn.ReLU()
+        )
 
-            # nn.ConvTranspose2d(),
-            # nn.ReLU(),
-            # nn.Upsample()
     def forward(self, h):
         # use the created layers here
-        r = h
-        return r
+        return self.decoder(h)
     
 # %%  Autoencoder
 class AE(nn.Module):
