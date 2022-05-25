@@ -1,9 +1,11 @@
 # %% imports
 # libraries
 import torch
-import torch.optim
+import torch.optim as optim
+import torch.nn as nn
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import os
 
 # local imports
 import MNIST_dataloader
@@ -16,7 +18,7 @@ torch.random.manual_seed(0)
 # %% preperations
 # define parameters
 batch_size = 64
-no_epochs = 4
+no_epochs = 10
 learning_rate = 3e-4
 
 # get dataloader
@@ -25,18 +27,73 @@ train_loader, test_loader = MNIST_dataloader.create_dataloaders(data_loc, batch_
 # create the autoencoder
 AE = autoencoder_template.AE()
 
+# training parameters
+if torch.cuda.is_available():
+    device = torch.device('cuda')
+else:
+    device = torch.device('cpu')
+AE.to(device=device)
+
 # create the optimizer
-optimizer = optim.Adam(params, lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
+optimizer = optim.Adam(AE.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0.0005)
+
+# choose loss
+criterion = nn.MSELoss()
+
 
 # %% training loop
+print("The training will start now!!!!!")
+eval_dic = {'Loss_t': [], 'train_acc': [],'Loss_v': [], 'valid_acc': []}
+loss_train = []
+loss_val = []
+
 # go over all epochs
 for epoch in range(no_epochs):
     print(f"\nTraining Epoch {epoch}:")
+    running_loss = 0.0
     # go over all minibatches
     for batch_idx,(x_clean, x_noisy, label) in enumerate(tqdm(train_loader)):
         # fill in how to train your network using only the clean images
-        1+1
+        AE.train()
+        x_clean.to(device)
+        label.to(device)
+        optimizer.zero_grad()
 
+        out, _ = AE(x_clean)
+        loss = criterion(out, x_clean)
+        loss.backward()
+        optimizer.step()
+
+        running_loss += loss.item()
+
+    train_epoch_loss = running_loss
+    eval_dic['Loss_t'].append(train_epoch_loss)
+
+    print('Epoch', epoch)
+    print('Training Loss', eval_dic['Loss_t'][epoch])
+    #print('Checking accuracy validation set')
+    #print('Validation Loss', eval_dic['Loss_v'][epoch])
+
+torch.save(AE.state_dict(), os.path.join("./", "Saved_Model.pth"))
+
+# %% Plot an output after training
+# get some examples
+examples = enumerate(test_loader)
+_, (x_clean_example, x_noisy_example, labels_example) = next(examples)
+
+example = x_clean_example[4,0,:,:]
+output,_ = AE.forward(x_clean_example)
+
+plt.figure(figsize=(12,3))
+plt.subplot(1,2,1)
+plt.imshow(example,cmap='gray')
+plt.xticks([])
+plt.yticks([])
+plt.subplot(1,2,2)
+plt.imshow(output[0][0].detach().numpy().reshape((32,32)),cmap='gray')
+plt.xticks([])
+plt.yticks([])
+plt.show()
 
 # %% HINT
 #hint: if you do not care about going over the data in mini-batches but rather want the entire dataset use:
