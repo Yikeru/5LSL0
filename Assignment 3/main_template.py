@@ -16,18 +16,20 @@ from config_file import data_loc
 torch.random.manual_seed(0)
 
 # %% preperations
+model_path = os.path.join("./", "Saved_Model.pth")
+
 # define parameters
 batch_size = 64
-no_epochs = 10
+no_epochs = 50
 learning_rate = 3e-4
 
 # get dataloader
-train_loader, test_loader = MNIST_dataloader.create_dataloaders(data_loc, batch_size)
+train_loader, test_loader, val_loader = MNIST_dataloader.create_dataloaders(data_loc, batch_size)
 
 # create the autoencoder
 AE = autoencoder_template.AE()
 
-# training parameters
+# set device
 if torch.cuda.is_available():
     device = torch.device('cuda')
 else:
@@ -35,10 +37,10 @@ else:
 AE.to(device=device)
 
 # create the optimizer
-optimizer = optim.Adam(AE.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0.0005)
+optimizer = optim.Adam(AE.parameters(), lr=learning_rate, eps=1e-08, weight_decay=0.0005)
 
 # choose loss
-criterion = nn.MSELoss()
+criterion = nn.MSELoss(reduction='mean')
 
 
 # %% training loop
@@ -66,15 +68,35 @@ for epoch in range(no_epochs):
 
         running_loss += loss.item()
 
-    train_epoch_loss = running_loss
+    # Check training loss
+    train_epoch_loss = running_loss/len(train_loader)
     eval_dic['Loss_t'].append(train_epoch_loss)
+
+    # Check validation loss
+    with torch.no_grad():
+        running_loss_val = 0.0
+#         Set the model to evaluation mode
+        AE.eval()
+
+        for (data_clean, data_noisy, labels) in val_loader:
+            # validation on noisy part or not
+            x = data_clean
+
+            # cast the inputs to the device
+            x = x.to(device=device)
+
+            output, _ = AE(x)
+            loss = criterion(output, x)
+            running_loss_val += loss.item()
+
+        val_epoch_loss = running_loss_val/len(val_loader)
+        eval_dic['Loss_v'].append(val_epoch_loss)
 
     print('Epoch', epoch)
     print('Training Loss', eval_dic['Loss_t'][epoch])
-    #print('Checking accuracy validation set')
-    #print('Validation Loss', eval_dic['Loss_v'][epoch])
+    print('Validation Loss', eval_dic['Loss_v'][epoch])
 
-torch.save(AE.state_dict(), os.path.join("./", "Saved_Model.pth"))
+torch.save(AE.state_dict(), model_path)
 
 # %% Plot an output after training
 # get some examples

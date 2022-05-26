@@ -15,7 +15,7 @@ batch_size = 64
 no_epochs = 10
 learning_rate = 3e-4
 
-train_loader, test_loader = MNIST_dataloader.create_dataloaders(data_loc, batch_size)
+train_loader, test_loader, val_loader = MNIST_dataloader.create_dataloaders(data_loc, batch_size)
 
 AE = autoencoder_template.AE()
 AE.load_state_dict(torch.load(r'./Saved_Model.pth'))
