@@ -8,10 +8,10 @@ class Encoder(nn.Module):
     def __init__(self):
         super(Encoder, self).__init__()  # same as super().__init__()
         # how to find output shape: [input - kernel + 2*padding - (dilation-1)(kernel-1)]/stride + 1
-        self.encoder_p1 = nn.Sequential(
+        self.encoder = nn.Sequential(
             nn.Conv2d(1,3, kernel_size=(3,3),padding=1, stride=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2,2)),
+            nn.MaxPool2d(kernel_size=(2)),
 
             nn.Conv2d(3, 1, kernel_size=(3,3),padding=1, stride=1),
             nn.ReLU(),
