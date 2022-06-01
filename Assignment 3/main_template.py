@@ -12,6 +12,8 @@ import MNIST_dataloader
 import autoencoder_template
 from config_file import data_loc
 
+
+
 # %% set torches random seed
 torch.random.manual_seed(0)
 

@@ -3,4 +3,5 @@ import os
 data_loc = os.getcwd()
 # print(data_loc)
 data_loc = data_loc + '\Assignment 3\data'
+batch_size = 64
 # print(data_loc)

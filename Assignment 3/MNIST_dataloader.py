@@ -66,6 +66,7 @@ class Noisy_MNIST(Dataset):
         noisy_image = self.Noisy_Images[idx,:,:,:]
         label =  self.Labels[idx]
         
+        #return torch.unsqueeze(clean_image,0),torch.unsqueeze(noisy_image,0),torch.unsqueeze(label,0)
         return clean_image,noisy_image,label
     
 # %% dataloader for the Noisy MNIST dataset
