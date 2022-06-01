@@ -32,9 +32,6 @@ _, test_loader, _ = MNIST_dataloader.create_dataloaders(data_loc, batch_size=1)
 model = AEarchitecture.AE()
 model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
 model.eval()  # turn off gradients, same as model.train(False)
-Clean_img=torch.Tensor([]) 
-Noisy_img=torch.tensor([]) 
-Label=torch.Tensor([])
 
 
 
