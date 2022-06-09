@@ -110,3 +110,4 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.savefig("data_examples.png",dpi=300,bbox_inches='tight')
     plt.show()
+# %%
