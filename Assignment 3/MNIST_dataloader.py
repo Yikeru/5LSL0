@@ -86,7 +86,6 @@ if __name__ == "__main__":
     # define parameters
     from config_file import data_loc
     batch_size = 64
-    
     # get dataloader
     train_loader, test_loader, val_loader = create_dataloaders(data_loc, batch_size)
     
