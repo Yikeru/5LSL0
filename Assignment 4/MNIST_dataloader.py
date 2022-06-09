@@ -7,10 +7,12 @@ from torch.utils.data import Dataset,DataLoader
 # pyplot
 import matplotlib.pyplot as plt
 
+from config_file import data_loc
+
 # %% Noisy MNIST dataset
 class Noisy_MNIST(Dataset):
     # initialization of the dataset
-    def __init__(self, split,data_loc,noise=0.5):
+    def __init__(self, split,data_loc,noise=0.5, val_percent=0.1):
         # save the input parameters
         self.split    = split 
         self.data_loc = data_loc
@@ -25,13 +27,23 @@ class Noisy_MNIST(Dataset):
         Clean_MNIST = datasets.MNIST(self.data_loc, train=Train, download=True)
         
         # reshuffle the test set to have digits 0-9 at the start
+        data = Clean_MNIST.data.unsqueeze(1)
+        targets = Clean_MNIST.targets
+
         if self.split == 'train':
-            data = Clean_MNIST.data.unsqueeze(1)
+            l = len(data)
+            idx = int((1-val_percent)*l)  # where train data ends
+            data = data[0:idx]
+            targets = targets[0:idx]
+        elif self.split == 'val':
+            l = len(data)
+            idx = int((1-val_percent)*l)+1  # where validation data starts
+            data = data[idx:-1]
+            targets = targets[idx:-1]
         else:
-            data = Clean_MNIST.data.unsqueeze(1)
             idx = torch.load('test_idx.tar')
-            data[:,:] = data[idx,:]
-            
+            data = data[idx,:]
+            targets = targets[idx]
         
         # reshape and normalize
         resizer = transforms.Resize(32)
@@ -42,7 +54,7 @@ class Noisy_MNIST(Dataset):
         # create the data
         self.Clean_Images = normalized_data
         self.Noisy_Images = normalized_data + torch.randn(normalized_data.size())*self.noise
-        self.Labels       = Clean_MNIST.targets
+        self.Labels       = targets
     
     # return the number of examples in this dataset
     def __len__(self):
@@ -54,26 +66,28 @@ class Noisy_MNIST(Dataset):
         noisy_image = self.Noisy_Images[idx,:,:,:]
         label =  self.Labels[idx]
         
+        #return torch.unsqueeze(clean_image,0),torch.unsqueeze(noisy_image,0),torch.unsqueeze(label,0)
         return clean_image,noisy_image,label
     
 # %% dataloader for the Noisy MNIST dataset
 def create_dataloaders(data_loc, batch_size):
     Noisy_MNIST_train = Noisy_MNIST("train", data_loc)
     Noisy_MNIST_test  = Noisy_MNIST("test" , data_loc)
+    Noisy_MNIST_val = Noisy_MNIST("val", data_loc)
     
     Noisy_MNIST_train_loader =  DataLoader(Noisy_MNIST_train, batch_size=batch_size, shuffle=True,  drop_last=False)
     Noisy_MNIST_test_loader  =  DataLoader(Noisy_MNIST_test , batch_size=batch_size, shuffle=False, drop_last=False)
-    
-    return Noisy_MNIST_train_loader, Noisy_MNIST_test_loader
+    Noisy_MNIST_val_loader  =  DataLoader(Noisy_MNIST_val , batch_size=batch_size, shuffle=False, drop_last=False)
+
+    return Noisy_MNIST_train_loader, Noisy_MNIST_test_loader, Noisy_MNIST_val_loader
 
 # %% test if the dataloaders work
 if __name__ == "__main__":
     # define parameters
-    data_loc = 'D://5LSL0-Datasets' #change the datalocation to something that works for you
+    from config_file import data_loc
     batch_size = 64
-    
     # get dataloader
-    train_loader, test_loader = create_dataloaders(data_loc, batch_size)
+    train_loader, test_loader, val_loader = create_dataloaders(data_loc, batch_size)
     
     # get some examples
     examples = enumerate(test_loader)
