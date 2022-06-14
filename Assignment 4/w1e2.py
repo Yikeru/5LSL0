@@ -192,3 +192,52 @@ print("Lambda values found are: ", model.l1, model.l2, model.l3, model.lf)
 
 
 # %% part b
+
+# First 10 numbers
+x_clean_example = test_loader.dataset.Clean_Images[0:10,:,:,:]
+x_noisy_example = test_loader.dataset.Noisy_Images[0:10,:,:,:]
+labels_example = test_loader.dataset.Labels[0:10]
+
+# Plot
+ax = plt.figure(figsize=(30,10))
+for i in range(10):
+    z = model(x_noisy_example[i,:,:,:].unsqueeze(0).to(device=device, dtype=dtype))
+    z = z.to(device='cpu', dtype=dtype).detach()
+    plt.subplot(3,10,i+1)
+    plt.imshow(x_noisy_example[i,0,:,:],cmap='gray')
+    plt.xticks([])
+    plt.yticks([])
+
+    plt.subplot(3,10,i+11)
+    plt.imshow(z[0,0,:,:],cmap='gray')
+    plt.xticks([])
+    plt.yticks([])
+
+    plt.subplot(3,10,i+21)
+    plt.imshow(x_clean_example[i,0,:,:],cmap='gray')
+    plt.xticks([])
+    plt.yticks([])
+plt.suptitle("Denoising using LISTA", fontsize=50)
+
+
+
+
+# %% part c
+
+# First 10 numbers
+x_clean_example = test_loader.dataset.Clean_Images
+x_noisy_example = test_loader.dataset.Noisy_Images
+
+# Get MSE on test data 
+with torch.no_grad():  # setting so that no backprop happens during validation
+    model.eval()  # setting so that no backprop happens during validation
+    test_loss = 0
+    for (x_clean, x_noisy, labels) in tqdm(test_loader):
+        x_clean = x_clean.to(device=device, dtype=dtype)
+        x_noisy = x_noisy.to(device=device, dtype=dtype)
+        out = model(x_noisy)
+        test_loss += criterion(out, x_clean).to(torch.float16).item()
+    # update loss dictionary  
+    loss_dict['test_loss'].append(vloss)
+    # print validation loss
+    print(f"\nTest loss is {test_loss/len(test_loader)}")
