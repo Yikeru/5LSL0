@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm 
 
+from config_file import data_loc
+
 # %% Fast MRI dataset
 class Fast_MRI(Dataset):
     # initialization of the dataset
@@ -51,10 +53,7 @@ def create_dataloaders(data_loc, batch_size):
 # %% test if the dataloaders work
 if __name__ == "__main__":
     # define parameters
-    data_loc = os.getcwd()
-    print(data_loc)
-    data_loc = data_loc + '\Fast_MRI_Knee'
-    # data_loc = 'C:\Users\Jexel\Documents\Yexel Files Documents\TUE Complete\WTB\Jaar 2 AIESW\Kwartiel 4\5LSL0 Machine learning for signal processing\Assignment\5LSL0-1\Assignment 4\Fast_MRI_Knee' #change the datalocation to something that works for you
+    # data_loc = 'D://5LSL0-Datasets//Fast_MRI_Knee' #change the datalocation to something that works for you
     batch_size = 2
     
     train_loader, test_loader = create_dataloaders(data_loc, batch_size)
